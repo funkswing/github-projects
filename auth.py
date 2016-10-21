@@ -7,3 +7,10 @@ class GitHubCredentials(object):
 
 	def b64_auth(self):
 		return base64.b64encode(user_pass)
+
+
+def ensure_cred(f):
+	def decorator(*args, **kwargs):
+		
+		return f(*args, **kwargs)
+	return ensure_cred

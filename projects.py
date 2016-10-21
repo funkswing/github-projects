@@ -1,5 +1,5 @@
 import requests
-from auth import GitHubCredentials
+from auth import GitHubCredentials, ensure_cred
 import logging
 
 
@@ -20,7 +20,12 @@ class HTTPRequest(object):
 			self.creds = GitHubCredentials(username, password)
 			self.headers["Authorization"] = "Basic {}".format(self.creds.b64_auth())
 
+	@ensure_cred
 	def get(self, url):
+		return request.get(url)
+
+	@ensure_cred
+	def post(self, url):
 		return request.get(url)
 
 
