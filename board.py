@@ -15,7 +15,7 @@ class ProjectBoard(object):
 		self.project = project
 
 	def create_cols(self, cols):
-		url = self.project._proj_url + "/{number}/columns".format(number=self.project.number)
+		url = self.project._proj_url_by_id + "columns"
 
 		for col in cols:
 			data = dict(name=col.name)
@@ -23,10 +23,7 @@ class ProjectBoard(object):
 			if response.status_code == 201:
 				pass
 			else:
-				print("Return code = {code} at:{url}".format(
-					code=response.status_code,
-					url=url
-				))
+				response.raise_for_status()
 
 
 class QedSprintBoard(ProjectBoard):

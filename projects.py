@@ -66,11 +66,13 @@ class Project(object):
 		self.name = None
 		self.id = None
 		self._number = None
+		self._BASE_URL = _BASE_URL
 		self._proj_url = "{url}repos/{owner}/{repo}/projects".format(
 			url=_BASE_URL, 
 			owner=self.owner, 
 			repo=self.repo,
 		)
+		self._proj_url_by_id = None
 		self.request = request
 		if not self.request:
 			user, passwd = user_login()
@@ -96,6 +98,13 @@ class Project(object):
 
 		# Set project "number" attribute
 		self.number = response_dict["number"]
+		# Set project "id" attribute
+		self.id = response_dict["id"]
+		# Now that we have the project id, set "_proj_url_by_id" property
+		self._proj_url_by_id = "{url}projects/{id}/".format(
+			url=self._BASE_URL, 
+			id=self.id
+		)
 
 		return response.status_code
 
@@ -166,7 +175,7 @@ def create_default_project_board(request):
 
 	create_code = proj.create(proj_name, proj_desc)
 	if create_code == 201:
-		print("Project creted successfully!")
+		print("Project created successfully!")
 	else:
 		print("Return code = {code} at:{url}\nPlease try again.".format(
 			code=response.status_code,
@@ -181,9 +190,13 @@ def create_default_project_board(request):
 	)
 	if create_default_cols.lower() in ("y", "yes"):
 		print("Creating default Sprint Board columns...")
-		project_board.create_cols(project_board.cols)
-		print("Default Sprint Board created!")
-		return
+		try:
+			project_board.create_cols(project_board.cols)
+			print("Default Sprint Board created!")
+		except requests.exceptions.HTTPError as e:
+			print("\n   {}\n".format(e))
+			# clean_up(project_board)
+		
 	else:
 		if create_default_cols.lower() not in ("n", "no"):
 			print("Neither yes or no entered...assuming no...")
